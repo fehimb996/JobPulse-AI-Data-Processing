@@ -1,0 +1,69 @@
+# .github/workflows/azure-deploy.yml
+# GitHub Actions workflow for Azure App Service deployment
+
+name: Deploy Flask App to Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Create virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        echo "VIRTUAL_ENV=$(pwd)/venv" >> $GITHUB_ENV
+        echo "$(pwd)/venv/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-azure.txt
+    
+    - name: Install Playwright browsers
+      run: |
+        playwright install chromium
+    
+    - name: Create deployment package
+      run: |
+        # Create a deployment directory
+        mkdir deployment
+        
+        # Copy application files
+        cp -r *.py deployment/
+        cp requirements-azure.txt deployment/requirements.txt
+        cp -r templates deployment/ 2>/dev/null || true
+        cp -r static deployment/ 2>/dev/null || true
+        
+        # Copy virtual environment (pre-installed libraries)
+        cp -r venv deployment/
+        
+        # Create startup script
+        cat > deployment/startup.sh << 'EOF'
+        #!/bin/bash
+        cd /home/site/wwwroot
+        source venv/bin/activate
+        export PLAYWRIGHT_BROWSERS_PATH=/home/site/wwwroot/venv/lib/python3.11/site-packages/playwright/driver
+        python app.py
+        EOF
+        chmod +x deployment/startup.sh
+    
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'your-app-name'  # Replace with your Azure App Service name
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: './deployment'

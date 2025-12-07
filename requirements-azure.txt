@@ -1,0 +1,53 @@
+# Lightweight requirements for Azure App Service
+# Remove heavy dependencies that cause timeout issues
+
+# Core Flask and API dependencies
+Flask==3.1.1
+flask-restx==1.3.0
+Werkzeug==3.1.3
+python-dotenv==1.1.1
+
+# Essential HTTP dependencies
+requests==2.32.4
+urllib3==2.5.0
+
+# Lightweight web scraping alternative to Playwright
+# Option 1: Use requests + BeautifulSoup (much faster install)
+beautifulsoup4==4.12.2
+lxml==4.9.3
+selenium==4.15.2  # If you need browser automation
+
+# Option 2: Keep Playwright but use minimal installation
+# playwright==1.53.0
+
+# Database dependencies
+# pyodbc==5.2.0  # Comment out if not immediately needed
+
+# AI/ML dependencies (these can be slow to install)
+google-genai==1.25.0
+google-auth==2.40.3
+
+# Essential data processing
+pandas==2.3.0  # Can be slow, consider using only if essential
+# numpy==2.3.1  # Heavy dependency, pandas includes it
+
+# Essential utilities only
+click==8.2.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
+certifi==2025.6.15
+
+# JSON and validation
+pydantic==2.11.7
+jsonschema==4.25.0
+
+# Template dependencies
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+
+# System monitoring (lightweight alternative to psutil)
+# psutil==7.0.0  # Can be slow to install
+
+# Essential typing and utilities
+typing_extensions==4.14.0
+tenacity==8.5.0
